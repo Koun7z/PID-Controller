@@ -26,6 +26,7 @@ struct PID_State
 
 	// PID State
 	float _integralState;
+	float _previousInputFiltered;
 	float _previousInput;
 
 	// Filter State

@@ -22,6 +22,7 @@ bool PID_Innit(struct PID_State* regulator, float K, float I, float D, uint16_t 
 	regulator->D_Gain = D;
 
 	regulator->_integralState              = 0;
+	regulator->_previousInputFiltered      = 0;
 	regulator->_previousInput              = 0;
 	regulator->_previousInputBufferPointer = 0;
 
@@ -58,8 +59,10 @@ float PID_Update(struct PID_State* regulator, float input, float dt)
 
 	output += input * regulator->K_Gain;
 
-	regulator->_integralState += input * dt;
+	regulator->_integralState += (input + regulator->_previousInput) * 0.5 * dt;
 	regulator->_integralState  = _clamp(regulator->_integralState, regulator->MaxSaturation, regulator->MinSaturation);
+
+	regulator->_previousInput = input;
 
 	output += regulator->_integralState * regulator->I_Gain;
 
@@ -82,9 +85,9 @@ float PID_Update(struct PID_State* regulator, float input, float dt)
 		filteredInput = input;
 	}
 
-	output += (filteredInput - regulator->_previousInput) / dt;
+	output += (filteredInput - regulator->_previousInputFiltered) / dt;
 
-	regulator->_previousInput = filteredInput;
+	regulator->_previousInputFiltered = filteredInput;
 
 	return _clamp(output, regulator->MaxSaturation, regulator->MinSaturation);
 }
