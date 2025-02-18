@@ -1,0 +1,3 @@
+[submodule "DSP-lib"]
+	path = DSP-lib
+	url = https://github.com/Koun7z/DSP-lib.git
